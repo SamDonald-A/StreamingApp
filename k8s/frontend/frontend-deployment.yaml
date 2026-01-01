@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: streamingapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: front-end:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: REACT_APP_AUTH_API_URL
+              value: "http://ab8dd6d3c6d8f432abf968687c7ced0f-1043561772.eu-west-2.elb.amazonaws.com/api"
+            - name: REACT_APP_STREAMING_API_URL
+              value: "http://ab8dd6d3c6d8f432abf968687c7ced0f-1043561772.eu-west-2.elb.amazonaws.com/streaming"
+            - name: REACT_APP_STREAMING_PUBLIC_URL
+              value: "http://ab8dd6d3c6d8f432abf968687c7ced0f-1043561772.eu-west-2.elb.amazonaws.com/streaming"
+            - name: REACT_APP_ADMIN_API_URL
+              value: "http://ab8dd6d3c6d8f432abf968687c7ced0f-1043561772.eu-west-2.elb.amazonaws.com/admin"
+            - name: REACT_APP_CHAT_API_URL
+              value: "http://ab8dd6d3c6d8f432abf968687c7ced0f-1043561772.eu-west-2.elb.amazonaws.com/chat"
+            - name: REACT_APP_CHAT_SOCKET_URL
+              value: "http://ab8dd6d3c6d8f432abf968687c7ced0f-1043561772.eu-west-2.elb.amazonaws.com/chat"

@@ -1,0 +1,10 @@
+{
+  "name": "@streaming/common",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "mongoose": "^8.0.0",
+    "@aws-sdk/client-s3": "^3.540.0"
+  }
+}

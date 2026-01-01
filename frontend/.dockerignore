@@ -1,5 +1,12 @@
 node_modules
 build
 npm-debug.log
-*.log
+*log
 coverage
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.env
+.env*
+dist

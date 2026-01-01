@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: streamingapp
+data:
+  CLIENT_URLS: "http://frontend"
+  AWS_REGION: "eu-west-2"
+  AWS_S3_BUCKET: "sam-streaming-app"

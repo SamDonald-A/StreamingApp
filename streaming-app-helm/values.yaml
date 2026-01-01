@@ -1,0 +1,37 @@
+namespace: streamingapp
+
+mongo:
+  image: mongo:6
+  port: 27017
+  database: streamingapp
+
+backend:
+  common:
+    mongoUri: mongodb://mongo:27017/streamingapp
+    jwtSecret: changeme
+  services:
+    auth:
+      name: auth
+      image: 975050024946.dkr.ecr.eu-west-2.amazonaws.com/auth:latest
+      port: 3001
+    streaming:
+      name: streaming
+      image: 975050024946.dkr.ecr.eu-west-2.amazonaws.com/streaming:latest
+      port: 3002
+    admin:
+      name: admin
+      image: 975050024946.dkr.ecr.eu-west-2.amazonaws.com/admin:latest
+      port: 3003
+    chat:
+      name: chat
+      image: 975050024946.dkr.ecr.eu-west-2.amazonaws.com/chat:latest
+      port: 3004
+
+frontend:
+  image: 975050024946.dkr.ecr.eu-west-2.amazonaws.com/frontend:latest
+  port: 80
+  url: "http://a584ea1c63a814defb8fcdbe97d41d75-465428402.eu-west-2.elb.amazonaws.com" 
+
+ingress:
+  enabled: true
+  host: ""
