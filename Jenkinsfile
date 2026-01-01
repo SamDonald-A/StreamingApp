@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'eu-west-2'
-        ECR_REGISTRY = "975050024946.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        NAMESPACE = 'streamingapp'
+        AWS_REGION     = 'eu-west-2'
+        ECR_REGISTRY   = "975050024946.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        NAMESPACE      = 'streamingapp'
         HELM_CHART_DIR = './StreamingApp/streaming-app-helm'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -17,14 +18,13 @@ pipeline {
 
         stage('Login to AWS ECR') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds'
-                ]]) {
-                    sh """
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']
+                ]) {
+                    sh '''
                     aws ecr get-login-password --region $AWS_REGION | \
                     docker login --username AWS --password-stdin $ECR_REGISTRY
-                    """
+                    '''
                 }
             }
         }
@@ -32,11 +32,19 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    def services = ['auth', 'streaming', 'admin', 'chat', 'frontend']
+                    def services = [
+                        auth      : 'backend/authService',
+                        admin     : 'backend/adminService',
+                        chat      : 'backend/chatService',
+                        streaming : 'backend/streamingService',
+                        frontend  : 'frontend'
+                    ]
 
-                    services.each { service ->
-                        echo "Building Docker image for ${service}..."
-                        sh "docker build -t $ECR_REGISTRY/${service}:latest ./StreamingApp/${service == 'frontend' ? 'frontend' : 'backend/' + service}"
+                    services.each { name, path ->
+                        echo "Building Docker image for ${name}..."
+                        sh """
+                        docker build -t $ECR_REGISTRY/${name}:latest ./StreamingApp/${path}
+                        """
                     }
                 }
             }
@@ -45,11 +53,11 @@ pipeline {
         stage('Push Docker Images to ECR') {
             steps {
                 script {
-                    def services = ['auth', 'streaming', 'admin', 'chat', 'frontend']
+                    def images = ['auth', 'admin', 'chat', 'streaming', 'frontend']
 
-                    services.each { service ->
-                        echo "Pushing Docker image for ${service} to ECR..."
-                        sh "docker push $ECR_REGISTRY/${service}:latest"
+                    images.each { image ->
+                        echo "Pushing Docker image for ${image}..."
+                        sh "docker push $ECR_REGISTRY/${image}:latest"
                     }
                 }
             }
@@ -59,8 +67,9 @@ pipeline {
             steps {
                 sh """
                 helm upgrade --install streamingapp $HELM_CHART_DIR \
-                -n $NAMESPACE --create-namespace \
-                --values $HELM_CHART_DIR/values.yaml
+                  -n $NAMESPACE \
+                  --create-namespace \
+                  --values $HELM_CHART_DIR/values.yaml
                 """
             }
         }
@@ -78,13 +87,15 @@ pipeline {
         success {
             mail to: 'samdonaldand@gmail.com',
                  subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build Successful! Check details: ${env.BUILD_URL}"
+                 body: "Build successful.\n\nCheck details: ${env.BUILD_URL}"
         }
+
         failure {
             mail to: 'samdonaldand@gmail.com',
                  subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build Failed! Check logs: ${env.BUILD_URL}"
+                 body: "Build failed.\n\nCheck logs: ${env.BUILD_URL}"
         }
+
         always {
             echo 'Pipeline finished.'
         }
