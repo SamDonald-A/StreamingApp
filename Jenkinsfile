@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION     = 'eu-west-2'
         ECR_REGISTRY   = "975050024946.dkr.ecr.${AWS_REGION}.amazonaws.com"
         NAMESPACE      = 'streamingapp'
-        HELM_CHART_DIR = './StreamingApp/streaming-app-helm'
+        HELM_CHART_DIR = './streaming-app-helm'
     }
 
     stages {
@@ -43,7 +43,7 @@ pipeline {
                     services.each { name, path ->
                         echo "Building Docker image for ${name}..."
                         sh """
-                        docker build -t $ECR_REGISTRY/${name}:latest ./StreamingApp/${path}
+                        docker build -t $ECR_REGISTRY/${name}:latest ${path}
                         """
                     }
                 }
@@ -87,13 +87,13 @@ pipeline {
         success {
             mail to: 'samdonaldand@gmail.com',
                  subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build successful.\n\nCheck details: ${env.BUILD_URL}"
+                 body: "Build successful.\n\n${env.BUILD_URL}"
         }
 
         failure {
             mail to: 'samdonaldand@gmail.com',
                  subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build failed.\n\nCheck logs: ${env.BUILD_URL}"
+                 body: "Build failed.\n\n${env.BUILD_URL}"
         }
 
         always {
