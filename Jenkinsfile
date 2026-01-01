@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'eu-west-2'
-        ECR_REGISTRY = '975050024946.dkr.ecr.${AWS_REGION}.amazonaws.com'
-        NAMESPACE = 'streamingapp'
+        AWS_REGION     = 'eu-west-2'
+        ECR_REGISTRY   = "975050024946.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        NAMESPACE      = 'streamingapp'
         HELM_CHART_DIR = './StreamingApp/streaming-app-helm'
     }
 
@@ -18,9 +18,15 @@ pipeline {
         stage('Login to AWS ECR') {
             steps {
                 script {
-                    sh '''
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-                    '''
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-creds'
+                    ]]) {
+                        sh '''
+                        echo "Logging in to AWS ECR..."
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+                        '''
+                    }
                 }
             }
         }
@@ -30,15 +36,16 @@ pipeline {
                 script {
                     def services = ['auth', 'streaming', 'admin', 'chat', 'frontend']
 
-                    // Build backend services
                     services.each { service ->
                         sh """
+                        echo "Building Docker image for ${service}..."
                         docker build -t $ECR_REGISTRY/${service}:latest ./StreamingApp/backend/${service} || true
                         """
                     }
 
-                    // Build frontend
+                    // Frontend
                     sh """
+                    echo "Building Docker image for frontend..."
                     docker build -t $ECR_REGISTRY/frontend:latest ./StreamingApp/frontend || true
                     """
                 }
@@ -51,7 +58,10 @@ pipeline {
                     def services = ['auth', 'streaming', 'admin', 'chat', 'frontend']
 
                     services.each { service ->
-                        sh "docker push $ECR_REGISTRY/${service}:latest"
+                        sh """
+                        echo "Pushing Docker image for ${service} to ECR..."
+                        docker push $ECR_REGISTRY/${service}:latest
+                        """
                     }
                 }
             }
@@ -61,6 +71,7 @@ pipeline {
             steps {
                 script {
                     sh """
+                    echo "Deploying with Helm..."
                     helm upgrade --install streamingapp $HELM_CHART_DIR -n $NAMESPACE --create-namespace --values $HELM_CHART_DIR/values.yaml
                     """
                 }
@@ -80,6 +91,7 @@ pipeline {
 
     post {
         success {
+            echo 'Deployment successful! Sending email...'
             emailext(
                 subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -94,6 +106,7 @@ pipeline {
         }
 
         failure {
+            echo 'Deployment failed! Sending email...'
             emailext(
                 subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -103,7 +116,7 @@ pipeline {
                     <p><b>Check Build Logs:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
                 mimeType: 'text/html',
-                to: 'samdonaldand@gmail.com'
+                to: 'samdonaldand@gmail.com'  
             )
         }
 
