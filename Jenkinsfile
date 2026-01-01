@@ -3,10 +3,9 @@ pipeline {
 
     environment {
         AWS_REGION   = 'eu-west-2'
-        AWS_ACCOUNT  = '975050024946'
-        ECR_REGISTRY = "${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_REGISTRY = "975050024946.dkr.ecr.${AWS_REGION}.amazonaws.com"
         NAMESPACE    = 'streamingapp'
-        HELM_CHART   = 'streaming-app-helm'
+        HELM_CHART_DIR = 'StreamingApp/streaming-app-helm'
     }
 
     stages {
@@ -35,20 +34,16 @@ pipeline {
             steps {
                 sh '''
                   echo "Building auth service"
-                  docker build -t $ECR_REGISTRY/auth:latest \
-                    -f backend/authService/Dockerfile backend
+                  docker build -t $ECR_REGISTRY/auth:latest backend/authService
 
                   echo "Building admin service"
-                  docker build -t $ECR_REGISTRY/admin:latest \
-                    -f backend/adminService/Dockerfile backend
+                  docker build -t $ECR_REGISTRY/admin:latest backend/adminService
 
                   echo "Building chat service"
-                  docker build -t $ECR_REGISTRY/chat:latest \
-                    -f backend/chatService/Dockerfile backend
+                  docker build -t $ECR_REGISTRY/chat:latest backend/chatService
 
                   echo "Building streaming service"
-                  docker build -t $ECR_REGISTRY/streaming:latest \
-                    -f backend/streamingService/Dockerfile backend
+                  docker build -t $ECR_REGISTRY/streaming:latest backend/streamingService
 
                   echo "Building frontend"
                   docker build -t $ECR_REGISTRY/frontend:latest frontend
@@ -71,17 +66,21 @@ pipeline {
         stage('Deploy with Helm') {
             steps {
                 sh '''
-                  helm upgrade --install streamingapp $HELM_CHART \
-                    -n $NAMESPACE --create-namespace
+                  helm upgrade --install streamingapp $HELM_CHART_DIR \
+                    -n $NAMESPACE \
+                    --create-namespace \
+                    --values $HELM_CHART_DIR/values.yaml
                 '''
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                sh 'kubectl get pods -n $NAMESPACE'
-                sh 'kubectl get svc -n $NAMESPACE'
-                sh 'kubectl get ingress -n $NAMESPACE'
+                sh '''
+                  kubectl get pods -n $NAMESPACE
+                  kubectl get svc -n $NAMESPACE
+                  kubectl get ingress -n $NAMESPACE
+                '''
             }
         }
     }
@@ -90,13 +89,27 @@ pipeline {
         success {
             mail to: 'samdonaldand@gmail.com',
                  subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build succeeded.\n${env.BUILD_URL}"
+                 body: """Build Successful!
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+
+URL: ${env.BUILD_URL}
+"""
         }
+
         failure {
             mail to: 'samdonaldand@gmail.com',
                  subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build failed.\n${env.BUILD_URL}"
+                 body: """Build Failed!
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+
+Check logs: ${env.BUILD_URL}
+"""
         }
+
         always {
             echo 'Pipeline finished.'
         }
