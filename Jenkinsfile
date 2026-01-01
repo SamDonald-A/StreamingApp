@@ -6,7 +6,7 @@ pipeline {
         AWS_ACCOUNT  = '975050024946'
         ECR_REGISTRY = "${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         NAMESPACE    = 'streamingapp'
-        HELM_CHART   = 'StreamingApp/streaming-app-helm'
+        HELM_CHART   = 'streaming-app-helm'
     }
 
     stages {
@@ -36,27 +36,22 @@ pipeline {
                 sh '''
                   echo "Building auth service"
                   docker build -t $ECR_REGISTRY/auth:latest \
-                    -f StreamingApp/backend/authService/Dockerfile \
-                    StreamingApp/backend
+                    -f backend/authService/Dockerfile backend
 
                   echo "Building admin service"
                   docker build -t $ECR_REGISTRY/admin:latest \
-                    -f StreamingApp/backend/adminService/Dockerfile \
-                    StreamingApp/backend
+                    -f backend/adminService/Dockerfile backend
 
                   echo "Building chat service"
                   docker build -t $ECR_REGISTRY/chat:latest \
-                    -f StreamingApp/backend/chatService/Dockerfile \
-                    StreamingApp/backend
+                    -f backend/chatService/Dockerfile backend
 
                   echo "Building streaming service"
                   docker build -t $ECR_REGISTRY/streaming:latest \
-                    -f StreamingApp/backend/streamingService/Dockerfile \
-                    StreamingApp/backend
+                    -f backend/streamingService/Dockerfile backend
 
                   echo "Building frontend"
-                  docker build -t $ECR_REGISTRY/frontend:latest \
-                    StreamingApp/frontend
+                  docker build -t $ECR_REGISTRY/frontend:latest frontend
                 '''
             }
         }
