@@ -30,14 +30,14 @@ pipeline {
                 script {
                     def services = ['auth', 'streaming', 'admin', 'chat', 'frontend']
 
-                    // Backend services
+                    // Build backend services
                     services.each { service ->
                         sh """
                         docker build -t $ECR_REGISTRY/${service}:latest ./StreamingApp/backend/${service} || true
                         """
                     }
 
-                    // Frontend
+                    // Build frontend
                     sh """
                     docker build -t $ECR_REGISTRY/frontend:latest ./StreamingApp/frontend || true
                     """
@@ -79,14 +79,36 @@ pipeline {
     }
 
     post {
+        success {
+            emailext(
+                subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <p><b>Build Status:</b> SUCCESS</p>
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                    <p><b>Check Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                mimeType: 'text/html',
+                to: 'samdonaldand@gmail.com'
+            )
+        }
+
+        failure {
+            emailext(
+                subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <p><b>Build Status:</b> FAILED</p>
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                    <p><b>Check Build Logs:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                mimeType: 'text/html',
+                to: 'samdonaldand@gmail.com'
+            )
+        }
+
         always {
             echo 'Pipeline finished.'
-        }
-        success {
-            echo 'Deployment successful!'
-        }
-        failure {
-            echo 'Deployment failed!'
         }
     }
 }
