@@ -4,12 +4,13 @@ pipeline {
     options {
         timeout(time: 60, unit: 'MINUTES')
         durabilityHint('PERFORMANCE_OPTIMIZED')
+        timestamps()
     }
 
     environment {
-        AWS_REGION = 'eu-west-2'
-        ECR_REGISTRY = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
-        NAMESPACE = 'streamingapp'
+        AWS_REGION    = 'eu-west-2'
+        ECR_REGISTRY  = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
+        NAMESPACE     = 'streamingapp'
         HELM_CHART_DIR = 'StreamingApp/streaming-app-helm'
     }
 
@@ -23,13 +24,13 @@ pipeline {
 
         stage('Login to AWS ECR') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds'
-                ]]) {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']
+                ]) {
                     sh '''
-                    aws ecr get-login-password --region $AWS_REGION |
-                    docker login --username AWS --password-stdin $ECR_REGISTRY
+                        set -e
+                        aws ecr get-login-password --region $AWS_REGION \
+                        | docker login --username AWS --password-stdin $ECR_REGISTRY
                     '''
                 }
             }
@@ -38,20 +39,20 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh '''
-                echo "Building auth service"
-                docker build -t $ECR_REGISTRY/auth:latest backend/authService
+                    set -euo pipefail
 
-                echo "Building admin service"
-                docker build -t $ECR_REGISTRY/admin:latest backend/adminService
+                    build_image () {
+                        NAME=$1
+                        PATH=$2
+                        echo "🚀 Building $NAME"
+                        docker build -t $ECR_REGISTRY/$NAME:latest $PATH
+                    }
 
-                echo "Building chat service"
-                docker build -t $ECR_REGISTRY/chat:latest backend/chatService
-
-                echo "Building streaming service"
-                docker build -t $ECR_REGISTRY/streaming:latest backend/streamingService
-
-                echo "Building frontend"
-                docker build -t $ECR_REGISTRY/frontend:latest frontend
+                    build_image auth backend/authService
+                    build_image admin backend/adminService
+                    build_image chat backend/chatService
+                    build_image streaming backend/streamingService
+                    build_image frontend frontend
                 '''
             }
         }
@@ -59,11 +60,19 @@ pipeline {
         stage('Push Images to ECR') {
             steps {
                 sh '''
-                docker push $ECR_REGISTRY/auth:latest
-                docker push $ECR_REGISTRY/admin:latest
-                docker push $ECR_REGISTRY/chat:latest
-                docker push $ECR_REGISTRY/streaming:latest
-                docker push $ECR_REGISTRY/frontend:latest
+                    set -euo pipefail
+
+                    push_image () {
+                        NAME=$1
+                        echo "📦 Pushing $NAME"
+                        docker push $ECR_REGISTRY/$NAME:latest
+                    }
+
+                    push_image auth
+                    push_image admin
+                    push_image chat
+                    push_image streaming
+                    push_image frontend
                 '''
             }
         }
@@ -71,9 +80,15 @@ pipeline {
         stage('Deploy with Helm') {
             steps {
                 sh '''
-                helm upgrade --install streamingapp $HELM_CHART_DIR \
-                  -n $NAMESPACE --create-namespace \
-                  --values $HELM_CHART_DIR/values.yaml
+                    set -euo pipefail
+
+                    helm upgrade --install streamingapp $HELM_CHART_DIR \
+                      --namespace $NAMESPACE \
+                      --create-namespace \
+                      --values $HELM_CHART_DIR/values.yaml \
+                      --atomic \
+                      --timeout 10m \
+                      --debug
                 '''
             }
         }
@@ -81,9 +96,9 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                kubectl get pods -n $NAMESPACE
-                kubectl get svc -n $NAMESPACE
-                kubectl get ingress -n $NAMESPACE
+                    kubectl get pods -n $NAMESPACE -o wide
+                    kubectl get svc -n $NAMESPACE
+                    kubectl get ingress -n $NAMESPACE
                 '''
             }
         }
@@ -93,12 +108,26 @@ pipeline {
         success {
             mail to: 'samdonaldand@gmail.com',
                  subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build Successful!\n\n${env.BUILD_URL}"
+                 body: """Build Successful 🎉
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+
+URL:
+${env.BUILD_URL}
+"""
         }
         failure {
             mail to: 'samdonaldand@gmail.com',
                  subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Build Failed.\n\n${env.BUILD_URL}"
+                 body: """Build Failed ❌
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+
+Check logs:
+${env.BUILD_URL}
+"""
         }
         always {
             echo 'Pipeline finished.'
