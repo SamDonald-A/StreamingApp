@@ -39,15 +39,15 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                sh(
-                  script: '''
+                sh '''
+bash -c '
 set -eu
 
 build_image () {
     NAME=$1
     PATH=$2
     echo "🚀 Building $NAME"
-    docker build -t $ECR_REGISTRY/$NAME:latest $PATH
+    docker build -t '"$ECR_REGISTRY"'/$NAME:latest $PATH
 }
 
 build_image auth backend/authService
@@ -55,54 +55,50 @@ build_image admin backend/adminService
 build_image chat backend/chatService
 build_image streaming backend/streamingService
 build_image frontend frontend
-''',
-                  shell: '/bin/bash'
-                )
+'
+'''
             }
         }
 
         stage('Push Images to ECR') {
             steps {
-                sh(
-                  script: '''
+                sh '''
+bash -c '
 set -eu
-docker push $ECR_REGISTRY/auth:latest
-docker push $ECR_REGISTRY/admin:latest
-docker push $ECR_REGISTRY/chat:latest
-docker push $ECR_REGISTRY/streaming:latest
-docker push $ECR_REGISTRY/frontend:latest
-''',
-                  shell: '/bin/bash'
-                )
+docker push '"$ECR_REGISTRY"'/auth:latest
+docker push '"$ECR_REGISTRY"'/admin:latest
+docker push '"$ECR_REGISTRY"'/chat:latest
+docker push '"$ECR_REGISTRY"'/streaming:latest
+docker push '"$ECR_REGISTRY"'/frontend:latest
+'
+'''
             }
         }
 
         stage('Deploy with Helm') {
             steps {
-                sh(
-                  script: '''
+                sh '''
+bash -c '
 set -eu
-helm upgrade --install streamingapp $HELM_CHART_DIR \
-  --namespace $NAMESPACE \
+helm upgrade --install streamingapp '"$HELM_CHART_DIR"' \
+  --namespace '"$NAMESPACE"' \
   --create-namespace \
-  --values $HELM_CHART_DIR/values.yaml
-''',
-                  shell: '/bin/bash'
-                )
+  --values '"$HELM_CHART_DIR"'/values.yaml
+'
+'''
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                sh(
-                  script: '''
+                sh '''
+bash -c '
 set -eu
-kubectl get pods -n $NAMESPACE
-kubectl get svc -n $NAMESPACE
-kubectl get ingress -n $NAMESPACE
-''',
-                  shell: '/bin/bash'
-                )
+kubectl get pods -n '"$NAMESPACE"'
+kubectl get svc -n '"$NAMESPACE"'
+kubectl get ingress -n '"$NAMESPACE"'
+'
+'''
             }
         }
     }
