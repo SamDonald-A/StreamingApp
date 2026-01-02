@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+        timeout(time: 60, unit: 'MINUTES')
+        durabilityHint('PERFORMANCE_OPTIMIZED')
+    }
+
     environment {
         AWS_REGION = 'eu-west-2'
         ECR_REGISTRY = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'

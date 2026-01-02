@@ -33,7 +33,11 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install   # ❗ DO NOT use --production
+
+# ✅ FIX: prevent Jenkins hang + reduce npm noise
+RUN npm config set fund false \
+ && npm config set audit false \
+ && npm install --verbose
 
 COPY . .
 
@@ -52,7 +56,6 @@ ENV REACT_APP_CHAT_API_URL=$REACT_APP_CHAT_API_URL
 ENV REACT_APP_CHAT_SOCKET_URL=$REACT_APP_CHAT_SOCKET_URL
 
 RUN npm run build
-
 
 FROM nginx:1.27-alpine
 COPY --from=build /app/build /usr/share/nginx/html
