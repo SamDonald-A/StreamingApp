@@ -9,6 +9,7 @@ backend:
   common:
     mongoUri: mongodb://mongo:27017/streamingapp
     jwtSecret: changeme
+    clientUrls: "http://a584ea1c63a814defb8fcdbe97d41d75-465428402.eu-west-2.elb.amazonaws.com"
   services:
     auth:
       name: auth
