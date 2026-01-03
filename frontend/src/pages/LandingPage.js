@@ -123,7 +123,7 @@ export const LandingPage = () => {
                 variant={isMobile ? 'h3' : 'h1'}
                 sx={{ fontWeight: 800, lineHeight: 1.05, mb: 3 }}
               >
-                Now, Stream premium cinema from anywhere.
+                Now Stream your premium cinema from anywhere.
               </Typography>
               <Typography variant="h6" color="rgba(255,255,255,0.75)" sx={{ mb: 4 }}>
                 Join millions of viewers discovering new worlds, sharing live reactions, and enjoying buffer-free 4K storytelling.
