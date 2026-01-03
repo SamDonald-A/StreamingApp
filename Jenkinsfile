@@ -8,11 +8,11 @@ pipeline {
     }
 
     environment {
-        AWS_REGION      = 'eu-west-2'
-        ECR_REGISTRY    = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
-        NAMESPACE       = 'streamingapp'
-        HELM_CHART_DIR  = 'StreamingApp/streaming-app-helm'
-        DOCKER          = '/usr/bin/docker'  // absolute path to Docker
+        AWS_REGION    = 'eu-west-2'
+        ECR_REGISTRY  = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
+        NAMESPACE     = 'streamingapp'
+        HELM_CHART_DIR = 'StreamingApp/streaming-app-helm'
+        DOCKER        = '/usr/bin/docker'   // absolute path to Docker
     }
 
     stages {
@@ -50,10 +50,10 @@ pipeline {
                     $DOCKER build -t $ECR_REGISTRY/$NAME:latest $PATH
                 }
 
-                build_image auth backend/auth
-                build_image admin backend/admin
-                build_image chat backend/chat
-                build_image streaming backend/streaming
+                build_image auth backend/authService
+                build_image admin backend/adminService
+                build_image chat backend/chatService
+                build_image streaming backend/streamingService
                 build_image frontend frontend
                 '''
             }
