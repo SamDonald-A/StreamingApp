@@ -55,8 +55,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh '''
+                    cd backend
                     set -e
-
                     build_image () {
                         NAME=$1
                         DOCKERFILE=$2
