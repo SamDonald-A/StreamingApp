@@ -8,11 +8,11 @@ pipeline {
     }
 
     environment {
-        AWS_REGION    = 'eu-west-2'
-        ECR_REGISTRY  = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
-        NAMESPACE     = 'streamingapp'
+        AWS_REGION     = 'eu-west-2'
+        ECR_REGISTRY   = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
+        NAMESPACE      = 'streamingapp'
         HELM_CHART_DIR = 'StreamingApp/streaming-app-helm'
-        DOCKER        = '/usr/bin/docker'   // absolute path to Docker
+        DOCKER         = '/usr/bin/docker'
     }
 
     stages {
@@ -30,9 +30,9 @@ pipeline {
                      credentialsId: 'aws-creds']
                 ]) {
                     sh '''
-                    set -e
-                    aws ecr get-login-password --region $AWS_REGION | \
-                    $DOCKER login --username AWS --password-stdin $ECR_REGISTRY
+                        set -e
+                        aws ecr get-login-password --region $AWS_REGION | \
+                        $DOCKER login --username AWS --password-stdin $ECR_REGISTRY
                     '''
                 }
             }
@@ -41,20 +41,28 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh '''
-                set -e
+                    set -e
 
-                build_image () {
-                    NAME=$1
-                    PATH=$2
-                    echo "🚀 Building $NAME"
-                    $DOCKER build -t $ECR_REGISTRY/$NAME:latest $PATH
-                }
+                    build_image () {
+                        NAME=$1
+                        DOCKERFILE=$2
+                        CONTEXT=$3
 
-                build_image auth backend/authService
-                build_image admin backend/adminService
-                build_image chat backend/chatService
-                build_image streaming backend/streamingService
-                build_image frontend frontend
+                        echo "🚀 Building $NAME"
+                        $DOCKER build \
+                          -t $ECR_REGISTRY/$NAME:latest \
+                          -f $DOCKERFILE \
+                          $CONTEXT
+                    }
+
+                    # Backend services (shared common/)
+                    build_image auth backend/authService/Dockerfile backend
+                    build_image admin backend/adminService/Dockerfile backend
+                    build_image chat backend/chatService/Dockerfile backend
+                    build_image streaming backend/streamingService/Dockerfile backend
+
+                    # Frontend (separate context)
+                    build_image frontend frontend/Dockerfile frontend
                 '''
             }
         }
@@ -62,12 +70,12 @@ pipeline {
         stage('Push Images to ECR') {
             steps {
                 sh '''
-                set -e
-                $DOCKER push $ECR_REGISTRY/auth:latest
-                $DOCKER push $ECR_REGISTRY/admin:latest
-                $DOCKER push $ECR_REGISTRY/chat:latest
-                $DOCKER push $ECR_REGISTRY/streaming:latest
-                $DOCKER push $ECR_REGISTRY/frontend:latest
+                    set -e
+                    $DOCKER push $ECR_REGISTRY/auth:latest
+                    $DOCKER push $ECR_REGISTRY/admin:latest
+                    $DOCKER push $ECR_REGISTRY/chat:latest
+                    $DOCKER push $ECR_REGISTRY/streaming:latest
+                    $DOCKER push $ECR_REGISTRY/frontend:latest
                 '''
             }
         }
@@ -75,11 +83,11 @@ pipeline {
         stage('Deploy with Helm') {
             steps {
                 sh '''
-                set -e
-                helm upgrade --install streamingapp $HELM_CHART_DIR \
-                  --namespace $NAMESPACE \
-                  --create-namespace \
-                  --values $HELM_CHART_DIR/values.yaml
+                    set -e
+                    helm upgrade --install streamingapp $HELM_CHART_DIR \
+                      --namespace $NAMESPACE \
+                      --create-namespace \
+                      --values $HELM_CHART_DIR/values.yaml
                 '''
             }
         }
@@ -87,10 +95,10 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                set -e
-                kubectl get pods -n $NAMESPACE
-                kubectl get svc -n $NAMESPACE
-                kubectl get ingress -n $NAMESPACE
+                    set -e
+                    kubectl get pods -n $NAMESPACE
+                    kubectl get svc -n $NAMESPACE
+                    kubectl get ingress -n $NAMESPACE
                 '''
             }
         }
