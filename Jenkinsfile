@@ -62,7 +62,7 @@ pipeline {
                         DOCKERFILE=$2
                         CONTEXT=$3
 
-                        echo "Building $NAME"
+                        echo "🚀 Building $NAME"
                         $DOCKER build \
                           -t $ECR_REGISTRY/$NAME:latest \
                           -f $DOCKERFILE \
@@ -91,14 +91,16 @@ pipeline {
             }
         }
 
-        stage('Deploy with Helm') {
+        stage('Deploy Application with Helm') {
             steps {
                 sh '''
                     set -e
                     helm upgrade --install streamingapp $HELM_CHART_DIR \
                       --namespace $NAMESPACE \
                       --create-namespace \
-                      --values $HELM_CHART_DIR/values.yaml
+                      --values $HELM_CHART_DIR/values.yaml \
+                      --wait \
+                      --timeout 10m
                 '''
             }
         }
