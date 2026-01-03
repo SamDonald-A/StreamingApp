@@ -11,7 +11,7 @@ pipeline {
         AWS_REGION     = 'eu-west-2'
         ECR_REGISTRY   = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
         NAMESPACE      = 'streamingapp'
-        HELM_CHART_DIR = 'StreamingApp/streaming-app-helm'
+        HELM_CHART_DIR = './StreamingApp/streaming-app-helm'
         DOCKER         = '/usr/bin/docker'
         EKS_CLUSTER    = 'sam-cluster-streaming'
     }
