@@ -13,6 +13,7 @@ pipeline {
         NAMESPACE      = 'streamingapp'
         HELM_CHART_DIR = 'StreamingApp/streaming-app-helm'
         DOCKER         = '/usr/bin/docker'
+        EKS_CLUSTER    = 'sam-cluster-streaming'
     }
 
     stages {
@@ -38,6 +39,19 @@ pipeline {
             }
         }
 
+        ✅ stage('Configure kubectl for EKS') {
+            steps {
+                sh '''
+                    set -e
+                    aws eks update-kubeconfig \
+                      --region $AWS_REGION \
+                      --name $EKS_CLUSTER
+
+                    kubectl get nodes
+                '''
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 sh '''
@@ -55,13 +69,10 @@ pipeline {
                           $CONTEXT
                     }
 
-                    # Backend services (shared common/)
                     build_image auth backend/authService/Dockerfile backend
                     build_image admin backend/adminService/Dockerfile backend
                     build_image chat backend/chatService/Dockerfile backend
                     build_image streaming backend/streamingService/Dockerfile backend
-
-                    # Frontend (separate context)
                     build_image frontend frontend/Dockerfile frontend
                 '''
             }
