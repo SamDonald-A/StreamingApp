@@ -39,7 +39,7 @@ pipeline {
             }
         }
 
-        ✅ stage('Configure kubectl for EKS') {
+        stage('Configure kubectl for EKS') {
             steps {
                 sh '''
                     set -e
@@ -62,7 +62,7 @@ pipeline {
                         DOCKERFILE=$2
                         CONTEXT=$3
 
-                        echo "🚀 Building $NAME"
+                        echo "Building $NAME"
                         $DOCKER build \
                           -t $ECR_REGISTRY/$NAME:latest \
                           -f $DOCKERFILE \
@@ -118,32 +118,24 @@ pipeline {
     post {
         success {
             mail to: 'samdonaldand@gmail.com',
-                 subject: "✅ Jenkins SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: """Build Successful ✅
+                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """Build Successful
 
 Job: ${env.JOB_NAME}
 Build: #${env.BUILD_NUMBER}
-
-URL:
-${env.BUILD_URL}
+URL: ${env.BUILD_URL}
 """
         }
 
         failure {
             mail to: 'samdonaldand@gmail.com',
-                 subject: "❌ Jenkins FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: """Build Failed ❌
+                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """Build Failed
 
 Job: ${env.JOB_NAME}
 Build: #${env.BUILD_NUMBER}
-
-URL:
-${env.BUILD_URL}
+URL: ${env.BUILD_URL}
 """
-        }
-
-        always {
-            echo 'Pipeline finished.'
         }
     }
 }
