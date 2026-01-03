@@ -11,7 +11,7 @@ pipeline {
         AWS_REGION     = 'eu-west-2'
         ECR_REGISTRY   = '975050024946.dkr.ecr.eu-west-2.amazonaws.com'
         NAMESPACE      = 'streamingapp'
-        HELM_CHART_DIR = './StreamingApp/streaming-app-helm'
+        HELM_CHART_DIR = 'streaming-app-helm'
         DOCKER         = '/usr/bin/docker'
         EKS_CLUSTER    = 'sam-cluster-streaming'
     }
@@ -62,7 +62,7 @@ pipeline {
                         DOCKERFILE=$2
                         CONTEXT=$3
 
-                        echo "Building $NAME"
+                        echo "🚀 Building $NAME"
                         $DOCKER build \
                           -t $ECR_REGISTRY/$NAME:latest \
                           -f $DOCKERFILE \
@@ -106,7 +106,6 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                    set -e
                     kubectl get pods -n $NAMESPACE
                     kubectl get svc -n $NAMESPACE
                     kubectl get ingress -n $NAMESPACE
