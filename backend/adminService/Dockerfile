@@ -32,20 +32,16 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy ONLY adminService package files
-COPY backend/adminService/package*.json ./
-
+COPY adminService/package*.json ./
 RUN npm install --production
 
-# Copy admin service source
-COPY backend/adminService ./adminService
-
-# Copy shared common folder
-COPY backend/common ./common
+COPY adminService ./adminService
+COPY common ./common
 
 WORKDIR /app/adminService
 
 EXPOSE 3003
 CMD ["node", "index.js"]
+
 
 

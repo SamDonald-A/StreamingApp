@@ -32,11 +32,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY backend/chatService/package*.json ./
+COPY chatService/package*.json ./
 RUN npm install --production
 
-COPY backend/chatService ./chatService
-COPY backend/common ./common
+COPY chatService ./chatService
+COPY common ./common
 
 WORKDIR /app/chatService
 

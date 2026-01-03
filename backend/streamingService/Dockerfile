@@ -32,11 +32,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY backend/streamingService/package*.json ./
+COPY streamingService/package*.json ./
 RUN npm install --production
 
-COPY backend/streamingService ./streamingService
-COPY backend/common ./common
+COPY streamingService ./streamingService
+COPY common ./common
 
 WORKDIR /app/streamingService
 

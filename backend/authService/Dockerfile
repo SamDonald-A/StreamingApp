@@ -35,11 +35,16 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY backend/authService/package*.json ./
+# Copy package files from authService (inside backend context)
+COPY authService/package*.json ./
+
 RUN npm install --production
 
-COPY backend/authService ./authService
-COPY backend/common ./common
+# Copy service code
+COPY authService ./authService
+
+# Copy shared common folder
+COPY common ./common
 
 WORKDIR /app/authService
 
