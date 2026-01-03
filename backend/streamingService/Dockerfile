@@ -13,19 +13,34 @@
 
 # CMD ["npm", "run", "start"]
 
+# FROM node:18-alpine
+
+# WORKDIR /app
+
+# COPY streamingService/package*.json ./
+# RUN npm install --production
+
+# COPY streamingService/ ./
+# COPY common/ ./common
+
+# ENV NODE_ENV=production
+# EXPOSE 3002
+
+# CMD ["npm", "run", "start"]
+
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY streamingService/package*.json ./
+COPY backend/streamingService/package*.json ./
 RUN npm install --production
 
-COPY streamingService/ ./
-COPY common/ ./common
+COPY backend/streamingService ./streamingService
+COPY backend/common ./common
 
-ENV NODE_ENV=production
+WORKDIR /app/streamingService
+
 EXPOSE 3002
-
-CMD ["npm", "run", "start"]
+CMD ["node", "index.js"]
 
 

@@ -12,22 +12,38 @@
 
 # CMD ["npm", "run", "start"]
 
+# FROM node:18-alpine
+
+# WORKDIR /app
+
+# # Copy only package files first (better caching)
+# COPY authService/package*.json ./
+# RUN npm install --production
+
+# # Copy service source
+# COPY authService/ ./
+
+# # Copy shared common code
+# COPY common/ ./common
+
+# ENV NODE_ENV=production
+# EXPOSE 3001
+
+# CMD ["npm", "run", "start"]
+
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy only package files first (better caching)
-COPY authService/package*.json ./
+COPY backend/authService/package*.json ./
 RUN npm install --production
 
-# Copy service source
-COPY authService/ ./
+COPY backend/authService ./authService
+COPY backend/common ./common
 
-# Copy shared common code
-COPY common/ ./common
+WORKDIR /app/authService
 
-ENV NODE_ENV=production
 EXPOSE 3001
+CMD ["node", "index.js"]
 
-CMD ["npm", "run", "start"]
 

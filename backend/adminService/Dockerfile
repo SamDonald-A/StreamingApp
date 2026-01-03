@@ -13,19 +13,39 @@
 
 # CMD ["npm", "run", "start"]
 
+# FROM node:18-alpine
+
+# WORKDIR /app
+
+# COPY adminService/package*.json ./
+# RUN npm install --production
+
+# COPY adminService/ ./
+# COPY common/ ./common
+
+# ENV NODE_ENV=production
+# EXPOSE 3003
+
+# CMD ["npm", "run", "start"]
+
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY adminService/package*.json ./
+# Copy ONLY adminService package files
+COPY backend/adminService/package*.json ./
+
 RUN npm install --production
 
-COPY adminService/ ./
-COPY common/ ./common
+# Copy admin service source
+COPY backend/adminService ./adminService
 
-ENV NODE_ENV=production
+# Copy shared common folder
+COPY backend/common ./common
+
+WORKDIR /app/adminService
+
 EXPOSE 3003
-
-CMD ["npm", "run", "start"]
+CMD ["node", "index.js"]
 
 

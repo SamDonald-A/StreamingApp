@@ -13,19 +13,35 @@
 
 # CMD ["npm", "run", "start"]
 
+# FROM node:18-alpine
+
+# WORKDIR /app
+
+# COPY chatService/package*.json ./
+# RUN npm install --production
+
+# COPY chatService/ ./
+# COPY common/ ./common
+
+# ENV NODE_ENV=production
+# EXPOSE 3004
+
+# CMD ["npm", "run", "start"]
+
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY chatService/package*.json ./
+COPY backend/chatService/package*.json ./
 RUN npm install --production
 
-COPY chatService/ ./
-COPY common/ ./common
+COPY backend/chatService ./chatService
+COPY backend/common ./common
 
-ENV NODE_ENV=production
+WORKDIR /app/chatService
+
 EXPOSE 3004
+CMD ["node", "index.js"]
 
-CMD ["npm", "run", "start"]
 
 
