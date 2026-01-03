@@ -21,8 +21,10 @@ COPY package*.json ./
 RUN npm install --production
 
 COPY . .
+COPY ../common ./common
 
 ENV NODE_ENV=production
 EXPOSE 3002
 
 CMD ["npm", "run", "start"]
+
