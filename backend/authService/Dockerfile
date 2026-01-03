@@ -16,17 +16,15 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package.json first for caching
-COPY package*.json ./
-
-# Install only production dependencies
+# Copy only package files first (better caching)
+COPY authService/package*.json ./
 RUN npm install --production
 
-# Copy service code
-COPY . .
+# Copy service source
+COPY authService/ ./
 
-# Copy common folder
-COPY ../common ./common
+# Copy shared common code
+COPY common/ ./common
 
 ENV NODE_ENV=production
 EXPOSE 3001

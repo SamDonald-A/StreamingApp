@@ -17,14 +17,15 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY streamingService/package*.json ./
 RUN npm install --production
 
-COPY . .
-COPY ../common ./common
+COPY streamingService/ ./
+COPY common/ ./common
 
 ENV NODE_ENV=production
 EXPOSE 3002
 
 CMD ["npm", "run", "start"]
+
 
