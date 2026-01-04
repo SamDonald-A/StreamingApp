@@ -107,9 +107,34 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
+                    set -e
+
                     kubectl get pods -n $NAMESPACE
                     kubectl get svc -n $NAMESPACE
                     kubectl get ingress -n $NAMESPACE
+
+                    # Fail if no deployments exist
+                    kubectl get deployment -n $NAMESPACE | grep -v NAME
+
+                    # Fail if deployments never become healthy
+                    kubectl wait --for=condition=Available deployment --all \
+                      -n $NAMESPACE --timeout=5m
+                '''
+            }
+        }
+
+        stage('Print Application URL') {
+            steps {
+                sh '''
+                    INGRESS_LB=$(kubectl get svc ingress-nginx-controller \
+                      -n ingress-nginx \
+                      -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+
+                    if [ -n "$INGRESS_LB" ]; then
+                        echo " Application URL: http://$INGRESS_LB"
+                    else
+                        echo " Ingress address not available yet (will appear shortly)"
+                    fi
                 '''
             }
         }
