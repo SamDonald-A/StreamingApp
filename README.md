@@ -218,6 +218,10 @@ GitHub Links: https://github.com/SamDonald-A/StreamingApp
 
 <img width="976" height="344" alt="image" src="https://github.com/user-attachments/assets/d20049c3-f5de-43c6-a9f5-8d05c57a2e20" />
 
+•	Loadbalancer also created
+
+<img width="975" height="275" alt="image" src="https://github.com/user-attachments/assets/2eb182f8-8048-40f9-a1fc-0dca3728300d" />
+
 •	Deployment Success and Notification also sent to the mail on success and check the loadbalancet on the browser
 
 <img width="975" height="339" alt="image" src="https://github.com/user-attachments/assets/923cbf54-dc25-4126-a8b2-0cbcb449fcc0" />
