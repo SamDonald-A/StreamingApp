@@ -99,7 +99,6 @@ pipeline {
                       --namespace $NAMESPACE \
                       --create-namespace \
                       --values $HELM_CHART_DIR/values.yaml \
-                      --wait \
                       --timeout 10m
                 '''
             }
