@@ -220,17 +220,31 @@ GitHub Links: https://github.com/SamDonald-A/StreamingApp
 
 •	Deployment Success and Notification also sent to the mail on success and check the loadbalancet on the browser
 
-<img width="975" height="450" alt="image" src="https://github.com/user-attachments/assets/90f825d3-328d-4af4-883f-dcf3144af0a0" />
+<img width="975" height="339" alt="image" src="https://github.com/user-attachments/assets/923cbf54-dc25-4126-a8b2-0cbcb449fcc0" />
 
-<img width="906" height="297" alt="image" src="https://github.com/user-attachments/assets/2702d423-5f97-4c6f-8d81-061e34597a5b" />
+<img width="975" height="370" alt="image" src="https://github.com/user-attachments/assets/f09b029e-889a-4dc6-a15f-44f9beadd8ce" />
 
 •	All Pods and services are running
 
-<img width="906" height="390" alt="image" src="https://github.com/user-attachments/assets/7eabb554-c145-4c32-a3a9-1126de287864" />
+<img width="975" height="493" alt="image" src="https://github.com/user-attachments/assets/3177ffad-39ec-4271-be8c-5494c5407d30" />
 
-•	Check the Load balancer on the browser
+<img width="975" height="503" alt="image" src="https://github.com/user-attachments/assets/8474df58-14d2-460f-89cf-734e3541b97b" />
 
-<img width="910" height="467" alt="image" src="https://github.com/user-attachments/assets/113d93ba-9e54-414d-806a-bce5fcf94d18" />
+•	Cross Check after the pipeline end
+
+<img width="975" height="474" alt="image" src="https://github.com/user-attachments/assets/c44e8e3f-2a2a-44b4-a335-a4da29e0d7ea" />
+
+•	Check the Load balancer on the browser – Create user and see if its works
+
+<img width="975" height="497" alt="image" src="https://github.com/user-attachments/assets/9d88540d-fba7-4b36-a922-35c83cb2a549" />
+
+<img width="975" height="501" alt="image" src="https://github.com/user-attachments/assets/b7df782a-6831-492d-9e5b-2756313814cf" />
+
+<img width="975" height="496" alt="image" src="https://github.com/user-attachments/assets/f897a50d-e593-4cee-b96c-dd237117f423" />
+
+<img width="975" height="496" alt="image" src="https://github.com/user-attachments/assets/83d2706b-5c03-42f2-917a-9962d6382d63" />
+
+User Created successfully which means the micro services are able to communicate between them
 
 Documentation by: Sam Donald A
 Email: samdonaldand@gmail.com
