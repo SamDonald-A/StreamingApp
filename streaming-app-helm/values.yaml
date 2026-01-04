@@ -9,7 +9,7 @@ backend:
   common:
     mongoUri: mongodb://mongo:27017/streamingapp
     jwtSecret: changeme
-    clientUrls: "http://a584ea1c63a814defb8fcdbe97d41d75-1573377681.eu-west-2.elb.amazonaws.com"
+    clientUrls: "http://aabff10116cf140c587d7fca51096116-9ec49cd106ddae6b.elb.eu-west-2.amazonaws.com"
   services:
     auth:
       name: auth
@@ -31,7 +31,7 @@ backend:
 frontend:
   image: 975050024946.dkr.ecr.eu-west-2.amazonaws.com/frontend:latest
   port: 80
-  url: "http://a584ea1c63a814defb8fcdbe97d41d75-1573377681.eu-west-2.elb.amazonaws.com" 
+  url: "http://aabff10116cf140c587d7fca51096116-9ec49cd106ddae6b.elb.eu-west-2.amazonaws.com" 
 
 ingress:
   enabled: true
