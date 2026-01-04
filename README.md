@@ -1,9 +1,5 @@
 # Graded Project on Orchestration and Scaling
----
-
 Objective: To automate the pipeline using ECR, EKS and Jenkins and deploy the app 
-
----
 
 GitHub Links: https://github.com/SamDonald-A/StreamingApp 
 
@@ -232,6 +228,14 @@ GitHub Links: https://github.com/SamDonald-A/StreamingApp
 
 <img width="906" height="390" alt="image" src="https://github.com/user-attachments/assets/7eabb554-c145-4c32-a3a9-1126de287864" />
 
+•	Check the Load balancer on the browser
+
+<img width="910" height="467" alt="image" src="https://github.com/user-attachments/assets/113d93ba-9e54-414d-806a-bce5fcf94d18" />
+
+Documentation by: Sam Donald A
+Email: samdonaldand@gmail.com
+GitHub: https://github.com/SamDonald-A
+Website: www.samdonald.in
 
 
 # StreamingApp
