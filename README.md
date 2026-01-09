@@ -1,4 +1,4 @@
-# Graded Project on Orchestration and Scaling
+# Project on Orchestration and Scaling
 Objective: To automate the pipeline using ECR, EKS and Jenkins and deploy the app 
 
 GitHub Links: https://github.com/SamDonald-A/StreamingApp 
